@@ -45,11 +45,18 @@ const FarmerDashboard = () => {
         <TouchableOpacity style={styles.gridItem}>
           <Text style={styles.gridText}>History</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.gridItem}>
-          <Text style={styles.gridText}>Frequency Guide</Text>
+        <TouchableOpacity
+          style={styles.gridItem}
+          onPress={() => navigation.navigate("FrequencyGuide")} // Navigate to Frequency Guide
+        >
+          <Text style={styles.gridText}>Frequency Recommendation</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.gridItemWide}>
-          <Text style={styles.gridText}>Help / FAQs</Text>
+
+        <TouchableOpacity
+          style={styles.gridItem}
+          onPress={() => navigation.navigate("Help")} // Navigate to Help screen
+        >
+          <Text style={styles.gridText}>Help / FAQ</Text>
         </TouchableOpacity>
       </View>
 
