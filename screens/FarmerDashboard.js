@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 
 const FarmerDashboard = () => {
@@ -7,6 +7,17 @@ const FarmerDashboard = () => {
 
   return (
     <View style={styles.container}>
+      {/* Profile Icon */}
+      <TouchableOpacity
+        style={styles.profileButton}
+        onPress={() => navigation.navigate("FarmerProfile")} // Navigate to Profile Page
+      >
+        <Image
+          source={{ uri: "https://via.placeholder.com/50" }} // Replace with actual profile image URL
+          style={styles.profileIcon}
+        />
+      </TouchableOpacity>
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.navButton}>
@@ -15,7 +26,10 @@ const FarmerDashboard = () => {
         <TouchableOpacity style={styles.navButton}>
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navButton}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => navigation.navigate("AboutPage")} // Navigate to About Page
+        >
           <Text style={styles.navText}>About</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navButton}>
@@ -81,10 +95,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#e9f7ef",
     padding: 10,
   },
+  profileButton: {
+    position: "absolute",
+    top: 10,
+    left: 10,
+    zIndex: 10,
+  },
+  profileIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    borderWidth: 2,
+    borderColor: "#2e8b57",
+  },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 60, // Adjusted for profile icon space
     marginBottom: 20,
   },
   navButton: {
@@ -124,17 +152,6 @@ const styles = StyleSheet.create({
   },
   gridItem: {
     width: "48%",
-    padding: 20,
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: "#2e8b57",
-  },
-  gridItemWide: {
-    width: "100%",
     padding: 20,
     backgroundColor: "#fff",
     borderRadius: 10,

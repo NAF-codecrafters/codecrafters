@@ -8,7 +8,6 @@ import {
   Alert,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import axios from "axios";
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -22,52 +21,33 @@ const LoginScreen = () => {
   const [farmLocation, setFarmLocation] = useState("");
   const [farmerNumber, setFarmerNumber] = useState("");
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (username === "" || password === "") {
       Alert.alert("Error", "Please enter both username and password.");
       return;
     }
 
-    try {
-      if (isFirstTimeLogin) {
-        // Sign-Up API Call
-        const response = await axios.post("http://localhost:5000/auth/signup", {
-          username,
-          password,
-          farmerName,
-          email,
-          farmLocation,
-          farmerNumber,
-        });
-
-        Alert.alert("Success", response.data.message);
-        setIsFirstTimeLogin(false); // Switch to login mode after successful sign-up
-        clearFields();
-      } else {
-        // Login API Call
-        const response = await axios.post("http://localhost:5000/auth/login", {
-          username,
-          password,
-        });
-
-        Alert.alert("Success", response.data.message);
-        navigation.navigate("FarmerDashboard"); // Navigate on successful login
+    if (isFirstTimeLogin) {
+      // Validate all additional fields during sign-up
+      if (
+        farmerName === "" ||
+        email === "" ||
+        farmLocation === "" ||
+        farmerNumber === ""
+      ) {
+        Alert.alert("Error", "Please fill in all the required fields.");
+        return;
       }
-    } catch (error) {
-      Alert.alert(
-        "Error",
-        error.response?.data?.message || "An error occurred. Please try again."
-      );
-    }
-  };
 
-  const clearFields = () => {
-    setUsername("");
-    setPassword("");
-    setFarmerName("");
-    setEmail("");
-    setFarmLocation("");
-    setFarmerNumber("");
+      // Sign-up successful
+      Alert.alert("Success", "Sign-up complete. You can now log in.");
+      setIsFirstTimeLogin(false); // Switch to login mode
+    } else {
+      // Regular login
+      Alert.alert("Success", "Login successful!");
+      // Navigate to FarmerDashboard
+      navigation.navigate("FarmerDashboard");
+    }
   };
 
   return (
@@ -131,8 +111,11 @@ const LoginScreen = () => {
       {/* Link to Toggle Between Sign-Up and Login */}
       <TouchableOpacity
         onPress={() => {
-          setIsFirstTimeLogin(!isFirstTimeLogin);
-          clearFields();
+          if (isFirstTimeLogin) {
+            setIsFirstTimeLogin(false);
+          } else {
+            setIsFirstTimeLogin(true);
+          }
         }}
       >
         <Text style={styles.footerText}>

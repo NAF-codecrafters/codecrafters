@@ -7,7 +7,8 @@ import CaptureImageScreen from "../screens/CaptureImageScreen";
 import HelpScreen from "../screens/HelpScreen";
 
 import FrequencyGuideScreen from "../screens/FrequencyGuideScreen";
-
+import FarmerProfile from "../screens/FarmerProfile";
+import AboutPage from "../screens/AboutPage";
 const Stack = createStackNavigator();
 
 const AppNavigator = () => {
@@ -19,6 +20,8 @@ const AppNavigator = () => {
       <Stack.Screen name="CaptureImageScreen" component={CaptureImageScreen} />
       <Stack.Screen name="Help" component={HelpScreen} />
       <Stack.Screen name="FrequencyGuide" component={FrequencyGuideScreen} />
+      <Stack.Screen name = "FarmerProfile" component={FarmerProfile}/>
+      <Stack.Screen name = "AboutPage" component={AboutPage}/>  
     </Stack.Navigator>
   );
 };
