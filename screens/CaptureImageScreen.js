@@ -8,9 +8,42 @@ import {
   Alert,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
+import { Audio } from "expo-av";
+import pestAudioMap from "../backend/utils/audioUtils";
 
 const CaptureImageScreen = () => {
   const [isUploading, setIsUploading] = useState(false);
+
+  // Play audio for the detected pest
+  const playPestSignal = async (pestName) => {
+    const audioPath = pestAudioMap[pestName];
+
+    if (audioPath) {
+      try {
+        const { sound } = await Audio.Sound.createAsync(audioPath);
+        await sound.playAsync();
+        sound.setOnPlaybackStatusUpdate((status) => {
+          if (status.didJustFinish) {
+            sound.unloadAsync(); // Free up memory after playback
+          }
+        });
+      } catch (error) {
+        console.error("Error playing audio:", error);
+      }
+    } else {
+      console.error("Audio file not found for pest:", pestName);
+    }
+  };
+
+  // Simulate pest detection
+  const detectPest = (imageUri) => {
+    // Simulate a delay for detection
+    setTimeout(() => {
+      const detectedPest = "Tuta"; // Example detected pest (replace with actual model output)
+      Alert.alert("Pest Detected", `Detected pest: ${detectedPest}`);
+      playPestSignal(detectedPest);
+    }, 2000);
+  };
 
   // Handle importing an image
   const handleImportImage = async () => {
@@ -27,7 +60,7 @@ const CaptureImageScreen = () => {
     });
 
     if (!result.canceled) {
-      uploadImage(result.uri);
+      uploadImage(result.assets[0].uri);
     }
   };
 
@@ -45,11 +78,11 @@ const CaptureImageScreen = () => {
     });
 
     if (!result.canceled) {
-      uploadImage(result.uri);
+      uploadImage(result.assets[0].uri);
     }
   };
 
-  // Simulate image upload
+  // Simulate image upload and pest detection
   const uploadImage = async (imageUri) => {
     setIsUploading(true);
 
@@ -57,6 +90,7 @@ const CaptureImageScreen = () => {
     setTimeout(() => {
       setIsUploading(false);
       Alert.alert("Success", "Image uploaded successfully!");
+      detectPest(imageUri); // Simulate pest detection after upload
     }, 2000);
   };
 
