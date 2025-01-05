@@ -13,18 +13,26 @@ import pestAudioMap from "../backend/utils/audioUtils";
 
 const CaptureImageScreen = () => {
   const [isUploading, setIsUploading] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [sound, setSound] = useState(null);
+  const [frequency, setFrequency] = useState(1); // Default frequency multiplier
 
-  // Play audio for the detected pest
   const playPestSignal = async (pestName) => {
     const audioPath = pestAudioMap[pestName];
 
     if (audioPath) {
       try {
-        const { sound } = await Audio.Sound.createAsync(audioPath);
-        await sound.playAsync();
-        sound.setOnPlaybackStatusUpdate((status) => {
+        const { sound: newSound } = await Audio.Sound.createAsync(audioPath);
+        setSound(newSound);
+        newSound.setRateAsync(frequency, false); // Set frequency rate
+        await newSound.playAsync();
+        setIsPlaying(true);
+
+        newSound.setOnPlaybackStatusUpdate((status) => {
           if (status.didJustFinish) {
-            sound.unloadAsync(); // Free up memory after playback
+            newSound.unloadAsync(); // Free up memory after playback
+            setSound(null);
+            setIsPlaying(false);
           }
         });
       } catch (error) {
@@ -35,7 +43,36 @@ const CaptureImageScreen = () => {
     }
   };
 
-  // Request permission to play the frequency signal
+  const pauseAudio = async () => {
+    if (sound) {
+      await sound.pauseAsync();
+      setIsPlaying(false);
+    }
+  };
+
+  const resumeAudio = async () => {
+    if (sound) {
+      await sound.playAsync();
+      setIsPlaying(true);
+    }
+  };
+
+  const increaseFrequency = async () => {
+    if (sound) {
+      const newFrequency = Math.min(frequency + 0.1, 2); // Limit frequency to 2x
+      setFrequency(newFrequency);
+      await sound.setRateAsync(newFrequency, false);
+    }
+  };
+
+  const lowerFrequency = async () => {
+    if (sound) {
+      const newFrequency = Math.max(frequency - 0.1, 0.5); // Limit frequency to 0.5x
+      setFrequency(newFrequency);
+      await sound.setRateAsync(newFrequency, false);
+    }
+  };
+
   const requestPlaySignal = (pestName) => {
     Alert.alert(
       "Permission Required",
@@ -57,7 +94,6 @@ const CaptureImageScreen = () => {
     );
   };
 
-  // Simulate pest detection
   const detectPest = (imageUri) => {
     setTimeout(() => {
       const detectedPest = "Tuta"; // Example detected pest (replace with actual model output)
@@ -70,7 +106,6 @@ const CaptureImageScreen = () => {
     }, 2000);
   };
 
-  // Handle importing an image
   const handleImportImage = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -89,7 +124,6 @@ const CaptureImageScreen = () => {
     }
   };
 
-  // Handle capturing an image with the camera
   const handleOpenCamera = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (permissionResult.granted === false) {
@@ -107,7 +141,6 @@ const CaptureImageScreen = () => {
     }
   };
 
-  // Simulate image upload and pest detection
   const uploadImage = async (imageUri) => {
     setIsUploading(true);
 
@@ -136,6 +169,32 @@ const CaptureImageScreen = () => {
         <View style={styles.uploadContainer}>
           <ActivityIndicator size="large" color="#2e8b57" />
           <Text style={styles.uploadText}>Upload in progress</Text>
+        </View>
+      )}
+
+      {sound && (
+        <View style={styles.remoteContainer}>
+          <Text style={styles.remoteTitle}>Remote Control</Text>
+          <TouchableOpacity
+            style={styles.remoteButton}
+            onPress={isPlaying ? pauseAudio : resumeAudio}
+          >
+            <Text style={styles.remoteButtonText}>
+              {isPlaying ? "Pause" : "Resume"}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.remoteButton}
+            onPress={increaseFrequency}
+          >
+            <Text style={styles.remoteButtonText}>Increase Frequency</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.remoteButton}
+            onPress={lowerFrequency}
+          >
+            <Text style={styles.remoteButtonText}>Lower Frequency</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>
@@ -182,6 +241,38 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
     color: "#6c757d",
+  },
+  remoteContainer: {
+    marginTop: 30,
+    alignItems: "center",
+    backgroundColor: "#2e8b57",
+    padding: 20,
+    borderRadius: 15,
+    width: "90%",
+  },
+  remoteTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#ffffff",
+    marginBottom: 20,
+  },
+  remoteButton: {
+    backgroundColor: "#ffffff",
+    padding: 15,
+    marginVertical: 10,
+    borderRadius: 10,
+    width: "80%",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  remoteButtonText: {
+    color: "#2e8b57",
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
 
