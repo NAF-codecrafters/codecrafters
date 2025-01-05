@@ -35,13 +35,38 @@ const CaptureImageScreen = () => {
     }
   };
 
+  // Request permission to play the frequency signal
+  const requestPlaySignal = (pestName) => {
+    Alert.alert(
+      "Permission Required",
+      `To interrupt the detected pest, we need to play a specific frequency at a particular strength. Do you want to proceed?`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Play Signal",
+          onPress: () => {
+            console.log("Permission granted. Playing signal...");
+            playPestSignal(pestName);
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   // Simulate pest detection
   const detectPest = (imageUri) => {
-    // Simulate a delay for detection
     setTimeout(() => {
       const detectedPest = "Tuta"; // Example detected pest (replace with actual model output)
-      Alert.alert("Pest Detected", `Detected pest: ${detectedPest}`);
-      playPestSignal(detectedPest);
+      Alert.alert("Pest Detected", `Detected pest: ${detectedPest}`, [
+        {
+          text: "OK",
+          onPress: () => requestPlaySignal(detectedPest),
+        },
+      ]);
     }, 2000);
   };
 
@@ -86,7 +111,6 @@ const CaptureImageScreen = () => {
   const uploadImage = async (imageUri) => {
     setIsUploading(true);
 
-    // Simulate a delay for uploading
     setTimeout(() => {
       setIsUploading(false);
       Alert.alert("Success", "Image uploaded successfully!");
